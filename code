@@ -1,0 +1,111 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+
+    bool issafe(vector<vector<char>>& board, int row, int col, char digit) {
+        // Row check
+        for (int j = 0; j < 9; j++) {
+            if (board[row][j] == digit) {
+                return false;
+            }
+        }
+
+        // Column check
+        for (int i = 0; i < 9; i++) {
+            if (board[i][col] == digit) {
+                return false;
+            }
+        }
+
+        // 3×3 subgrid check
+        int srow = (row / 3) * 3;
+        int scol = (col / 3) * 3;
+        for (int i = srow; i < srow + 3; i++) {
+            for (int j = scol; j < scol + 3; j++) {
+                if (board[i][j] == digit) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool helper(vector<vector<char>>& board, int row, int col) {
+        // Base case: If we reached row 9, puzzle is solved
+        if (row == 9) {
+            return true;
+        }
+
+        // Move to the next cell
+        int nextrow = row, nextcol = col + 1;
+        if (nextcol == 9) {
+            nextrow = row + 1;
+            nextcol = 0;
+        }
+
+        // If cell is already filled, skip it
+        if (board[row][col] != '.') {
+            return helper(board, nextrow, nextcol);
+        }
+
+        // Try placing digits 1-9
+        for (char digit = '1'; digit <= '9'; digit++) {
+            if (issafe(board, row, col, digit)) {
+                board[row][col] = digit; // Place digit
+
+                if (helper(board, nextrow, nextcol)) {
+                    return true;
+                }
+
+                board[row][col] = '.'; // Backtrack
+            }
+        }
+
+        return false;
+    }
+
+    void solveSudoku(vector<vector<char>>& board) {
+        helper(board, 0, 0);
+    }
+};
+
+// Function to print the Sudoku board
+void printBoard(vector<vector<char>>& board) {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            cout << board[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+// Main function to test the solver
+int main() {
+    vector<vector<char>> board = {
+        {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+        {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+        {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+        {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+        {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+        {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+        {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+        {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+        {'.', '.', '.', '.', '8', '.', '.', '7', '9'}
+    };
+
+    Solution solver;
+    cout << "Original Sudoku Board:" << endl;
+    printBoard(board);
+
+    solver.solveSudoku(board);
+
+    cout << "\nSolved Sudoku Board:" << endl;
+    printBoard(board);
+
+    return 0;
+}
